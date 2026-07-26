@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>aviral@portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png">
+<link rel="apple-touch-icon" href="favicon-512.png">
+<style>
+  :root{
+    --bg:#1d2021;
+    --bg-soft:#282828;
+    --bg-alt:#32302f;
+    --bg-hi:#3c3836;
+    --border:#504945;
+    --border-soft:#45403d;
+    --fg:#ebdbb2;
+    --fg-dim:#d5c4a1;
+    --muted:#a89984;
+    --muted2:#7c6f64;
+    --orange:#fe8019;
+    --orange-dim:#d65d0e;
+    --green:#b8bb26;
+    --green-dim:#98971a;
+    --aqua:#8ec07c;
+    --yellow:#fabd2f;
+    --red:#fb4934;
+    --purple:#d3869b;
+    --blue:#83a598;
+    --radius:3px;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+
+  html{scroll-behavior:smooth;}
+
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important;}
+  }
+
+  body{
+    background:var(--bg);
+    color:var(--fg);
+    font-family:'JetBrains Mono', ui-monospace, monospace;
+    font-size:15px;
+    line-height:1.6;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(254,128,25,0.06), transparent),
+      radial-gradient(ellipse 60% 40% at 90% 10%, rgba(184,187,38,0.04), transparent);
+    background-attachment:fixed;
+  }
+
+  ::selection{ background:var(--orange); color:var(--bg); }
+
+  a{ color:inherit; text-decoration:none; }
+
+  :focus-visible{
+    outline:2px solid var(--orange);
+    outline-offset:2px;
+  }
+
+  .wrap{
+    max-width:900px;
+    margin:0 auto;
+    padding:0 24px;
+  }
+
+  /* ---------- tmux-style status nav ---------- */
+  .statusline{
+    position:sticky;
+    top:0;
+    z-index:100;
+    background:var(--bg-soft);
+    border-bottom:1px solid var(--border);
+    font-size:13px;
+  }
+  .statusline-inner{
+    max-width:900px;
+    margin:0 auto;
+    padding:0 24px;
+    display:flex;
+    align-items:center;
+    gap:2px;
+    height:38px;
+    overflow-x:auto;
+  }
+  .status-session{
+    color:var(--bg);
+    background:var(--orange);
+    font-weight:700;
+    padding:4px 10px;
+    border-radius:var(--radius);
+    white-space:nowrap;
+    letter-spacing:0.02em;
+  }
+  .status-win{
+    color:var(--muted);
+    padding:4px 10px;
+    white-space:nowrap;
+    border-radius:var(--radius);
+    transition:color .15s ease, background .15s ease;
+  }
+  .status-win:hover, .status-win:focus-visible{
+    color:var(--fg);
+    background:var(--bg-hi);
+  }
+  .status-win.active{
+    color:var(--bg);
+    background:var(--green);
+  }
+  .status-spacer{ flex:1; }
+  .status-clock{
+    color:var(--muted2);
+    padding:4px 10px;
+    white-space:nowrap;
+  }
+
+  /* ---------- terminal window chrome ---------- */
+  .term{
+    background:var(--bg-alt);
+    border:1px solid var(--border);
+    border-radius:6px;
+    overflow:hidden;
+    box-shadow:0 20px 50px -20px rgba(0,0,0,0.6);
+  }
+  .term-bar{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:10px 14px;
+    background:var(--bg-hi);
+    border-bottom:1px solid var(--border);
+  }
+  .term-dot{ width:11px; height:11px; border-radius:50%; }
+  .term-dot.r{ background:var(--red); }
+  .term-dot.y{ background:var(--yellow); }
+  .term-dot.g{ background:var(--green); }
+  .term-title{
+    flex:1;
+    text-align:center;
+    color:var(--muted2);
+    font-size:12.5px;
+    letter-spacing:0.02em;
+  }
+  .term-body{ padding:24px; }
+  @media (max-width:600px){ .term-body{ padding:18px 16px; } }
+
+  .prompt{ color:var(--green); }
+  .prompt .path{ color:var(--blue); }
+  .prompt .sym{ color:var(--fg-dim); }
+
+  /* ---------- section rhythm ---------- */
+  section{ padding:64px 0; }
+  section:first-of-type{ padding-top:48px; }
+
+  .section-label{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    color:var(--muted2);
+    font-size:13px;
+    margin-bottom:18px;
+  }
+  .section-label .cmd{ color:var(--green); }
+  .section-label .comment{ color:var(--muted2); }
+  .section-label::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background:var(--border-soft);
+  }
+
+  /* ---------- hero / neofetch ---------- */
+  .hero{ padding-top:56px; }
+  .neofetch{
+    max-width:420px;
+  }
+
+  .fetch-name{
+    font-size:22px;
+    font-weight:800;
+    color:var(--fg);
+    margin-bottom:2px;
+  }
+  .fetch-rule{
+    height:1px;
+    background:var(--border-soft);
+    margin:10px 0 14px;
+    width:100%;
+  }
+  .fetch-row{
+    display:flex;
+    gap:10px;
+    font-size:13.5px;
+    padding:2px 0;
+  }
+  .fetch-key{ color:var(--orange); min-width:76px; font-weight:700; }
+  .fetch-val{ color:var(--fg-dim); }
+  .fetch-swatches{ display:flex; gap:6px; margin-top:14px; }
+  .fetch-swatches span{ width:18px; height:14px; border-radius:2px; display:inline-block; }
+
+  .hero-tagline{
+    margin-top:34px;
+    font-size:16px;
+    color:var(--fg-dim);
+  }
+  .hero-tagline .typed{ color:var(--green); }
+  .cursor{
+    display:inline-block;
+    width:9px; height:17px;
+    background:var(--orange);
+    margin-left:2px;
+    vertical-align:-3px;
+    animation:blink 1s step-end infinite;
+  }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  .hero-links{
+    margin-top:24px;
+    display:flex;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .pill{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 14px;
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    color:var(--fg-dim);
+    font-size:13px;
+    transition:border-color .15s ease, color .15s ease, transform .15s ease;
+  }
+  .pill:hover, .pill:focus-visible{
+    border-color:var(--orange);
+    color:var(--orange);
+    transform:translateY(-1px);
+  }
+  .pill .dot{ color:var(--green); }
+
+  /* ---------- about ---------- */
+  .about-body{ color:var(--fg-dim); font-size:14.5px; }
+  .about-body .kw{ color:var(--purple); }
+  .about-body .str{ color:var(--aqua); }
+  .about-body .fn{ color:var(--yellow); }
+
+  /* ---------- experience ---------- */
+  .log-line{ display:flex; gap:14px; font-size:13px; margin-bottom:4px; }
+  .log-time{ color:var(--muted2); white-space:nowrap; }
+  .log-tag{ color:var(--green); white-space:nowrap; }
+  .log-msg{ color:var(--fg-dim); }
+  .exp-head{
+    display:flex; justify-content:space-between; align-items:baseline;
+    flex-wrap:wrap; gap:8px;
+    margin-bottom:14px;
+  }
+  .exp-role{ color:var(--fg); font-weight:700; font-size:16px; }
+  .exp-org{ color:var(--orange); }
+  .exp-date{ color:var(--muted2); font-size:13px; }
+  .exp-list{ list-style:none; margin-top:14px; }
+  .exp-list li{
+    position:relative;
+    padding-left:20px;
+    margin-bottom:10px;
+    color:var(--fg-dim);
+    font-size:14px;
+  }
+  .exp-list li::before{
+    content:"›";
+    position:absolute; left:0; top:0;
+    color:var(--green);
+    font-weight:700;
+  }
+
+  /* ---------- projects ---------- */
+  .ls-line{
+    color:var(--muted2);
+    font-size:13px;
+    margin-bottom:16px;
+  }
+  .ls-line .n{ color:var(--aqua); }
+  .projects-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:14px;
+  }
+  .proj{
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    background:var(--bg-soft);
+    padding:20px 22px;
+    transition:border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+  }
+  .proj:hover{
+    border-color:var(--proj-accent, var(--orange));
+    box-shadow:0 0 0 1px var(--proj-accent, var(--orange)) inset, 0 12px 30px -18px rgba(0,0,0,0.7);
+    transform:translateY(-2px);
+  }
+  .proj-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:10px;
+  }
+  .proj-name{
+    font-weight:700;
+    font-size:15px;
+    color:var(--proj-accent, var(--orange));
+    display:flex; align-items:center; gap:8px;
+  }
+  .proj-name::before{ content:"drwxr-xr-x"; display:none; }
+  .proj-link{
+    font-size:12px;
+    color:var(--muted);
+    border:1px solid var(--border);
+    padding:3px 8px;
+    border-radius:var(--radius);
+    transition:color .15s ease, border-color .15s ease;
+  }
+  .proj-link:hover{ color:var(--fg); border-color:var(--muted); }
+  .proj-desc{ color:var(--fg-dim); font-size:13.5px; margin-bottom:12px; }
+  .proj-tags{ display:flex; flex-wrap:wrap; gap:6px; }
+  .tag{
+    font-size:11.5px;
+    color:var(--muted);
+    background:var(--bg-hi);
+    padding:3px 8px;
+    border-radius:2px;
+    border:1px solid var(--border-soft);
+  }
+
+  /* ---------- skills as dotfile ---------- */
+  .conf-line{ display:flex; gap:0; font-size:13.5px; padding:3px 0; flex-wrap:wrap; }
+  .conf-key{ color:var(--aqua); min-width:180px; }
+  .conf-eq{ color:var(--muted2); margin:0 8px; }
+  .conf-val{ color:var(--fg-dim); }
+  .conf-val .item{ color:var(--yellow); }
+  .conf-val .item:not(:last-child)::after{ content:", "; color:var(--muted2); }
+  .conf-comment{ color:var(--muted2); font-style:italic; }
+
+  /* ---------- footer / contact ---------- */
+  footer{ padding:56px 0 80px; }
+  .contact-cmd{ font-size:14px; color:var(--fg-dim); margin-bottom:22px; }
+  .contact-cmd .p1{ color:var(--green); }
+  .contact-cmd .p2{ color:var(--blue); }
+  .contact-grid{
+    display:flex;
+    gap:16px;
+    flex-wrap:wrap;
+    margin-bottom:32px;
+  }
+  .contact-card{
+    flex:1;
+    min-width:180px;
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:16px 18px;
+    transition:border-color .15s ease, transform .15s ease;
+  }
+  .contact-card:hover, .contact-card:focus-visible{
+    border-color:var(--aqua);
+    transform:translateY(-2px);
+  }
+  .contact-label{ color:var(--muted2); font-size:11px; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px; }
+  .contact-value{ color:var(--fg); font-size:14px; word-break:break-word; }
+  .contact-value .arrow{ color:var(--orange); margin-right:6px; }
+  .footer-rule{ height:1px; background:var(--border-soft); margin-bottom:20px; }
+  .footer-note{ color:var(--muted2); font-size:12.5px; }
+  .footer-note .exit{ color:var(--green); }
+
+  /* ---------- reveal on scroll ---------- */
+  .reveal{
+    opacity:0;
+    transform:translateY(14px);
+    transition:opacity .5s ease, transform .5s ease;
+  }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+</style>
+</head>
+<body>
+
+<nav class="statusline" aria-label="Section navigation">
+  <div class="statusline-inner">
+    <span class="status-session">aviral@portfolio</span>
+    <a href="#home" class="status-win" data-win="home">1:home</a>
+    <a href="#about" class="status-win" data-win="about">2:about</a>
+    <a href="#experience" class="status-win" data-win="experience">3:experience</a>
+    <a href="#projects" class="status-win" data-win="projects">4:projects</a>
+    <a href="#skills" class="status-win" data-win="skills">5:skills</a>
+    <a href="#contact" class="status-win" data-win="contact">6:contact</a>
+    <span class="status-spacer"></span>
+    <span class="status-clock" id="clock">learning things :D</span>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <!-- HERO -->
+  <section id="home" class="hero">
+    <div class="term">
+      <div class="term-bar">
+        <span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span>
+        <span class="term-title">aviral@vit-ap: ~</span>
+      </div>
+      <div class="term-body">
+        <div class="neofetch">
+          <div>
+            <div class="fetch-name">aviral@vit-ap</div>
+            <div class="fetch-rule"></div>
+            <div class="fetch-row"><span class="fetch-key">OS</span><span class="fetch-val">Windows 11 / CachyOS x86_64 (Arch-based)</span></div>
+            <div class="fetch-row"><span class="fetch-key">Host</span><span class="fetch-val">Final-year B.Tech CSE, VIT-AP</span></div>
+            <div class="fetch-row"><span class="fetch-key">Focus</span><span class="fetch-val">Cybersecurity · Linux Systems · ML</span></div>
+            <div class="fetch-row"><span class="fetch-key">WM</span><span class="fetch-val">Gnome</span></div>
+            <div class="fetch-row"><span class="fetch-key">Editor</span><span class="fetch-val">Neovim (LazyVim)</span></div>
+            <div class="fetch-row"><span class="fetch-key">Langs</span><span class="fetch-val">Java, Python, SQL, C</span></div>
+            <div class="fetch-swatches" aria-hidden="true">
+              <span style="background:#fb4934"></span>
+              <span style="background:#b8bb26"></span>
+              <span style="background:#fabd2f"></span>
+              <span style="background:#83a598"></span>
+              <span style="background:#d3869b"></span>
+              <span style="background:#8ec07c"></span>
+              <span style="background:#fe8019"></span>
+              <span style="background:#ebdbb2"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-tagline">
+          <span class="prompt"><span class="path">~</span> <span class="sym">$</span></span>
+          <span class="typed" id="typedTagline"></span><span class="cursor" aria-hidden="true"></span>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about" class="reveal">
+    <div class="section-label"><span class="cmd">$</span> cat about.txt</div>
+    <div class="about-body">
+      I'm a <span class="kw">final-year</span> Computer Science student at <span class="str">VIT-AP University</span>,
+      spending most of my time somewhere between a <span class="fn">terminal</span> and a research notebook.
+      My focus sits at the intersection of <span class="str">cybersecurity</span>, <span class="str">Linux systems</span>,
+      and <span class="str">applied machine learning</span> — currently deep into learning C and low level systems.
+      <br><br>
+      Outside of coursework, I run distro-hop for fun,
+      and build small tools that scratch my own itches — an incident-response memory extractor,
+      a privacy-preserving NIDS, a YouTube Music downloader. I like systems I can take apart and rebuild better.
+    </div>
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section id="experience" class="reveal">
+    <div class="section-label"><span class="cmd">$</span> tail -f experience.log</div>
+    <div class="term">
+      <div class="term-bar">
+        <span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span>
+        <span class="term-title">experience.log</span>
+      </div>
+      <div class="term-body">
+        <div class="exp-head">
+          <div>
+            <div class="exp-role">Security &amp; Infrastructure Intern</div>
+            <div class="exp-org">Kudankulam Nuclear Power Plant</div>
+          </div>
+          <div class="exp-date">Dec 2025 — Jan 2026</div>
+        </div>
+        <ul class="exp-list">
+          <li>Analyzed high-security IT infrastructure operations, focused on maintaining and securing a strictly isolated, air-gapped intranet environment against external cyber threats.</li>
+          <li>Evaluated internal enterprise applications built with Spring, JavaFX, and PHP supporting plant operations.</li>
+          <li>Investigated internal web service configuration and deployment via Apache and Apache Tomcat.</li>
+          <li>Examined relational database systems and network security protocols optimized for zero external connectivity.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects" class="reveal">
+    <div class="section-label"><span class="cmd">$</span> ls -la ~/projects</div>
+    <div class="ls-line">total <span class="n">3</span> directories · sorted by relevance</div>
+    <div class="projects-grid">
+
+      <div class="proj" style="--proj-accent:#fe8019">
+        <div class="proj-head">
+          <span class="proj-name">federated-nids/</span>
+          <a class="proj-link" href="https://github.com/maplelattte/federated-nids" target="_blank" rel="noopener">view →</a>
+        </div>
+        <div class="proj-desc">
+          Privacy-preserving Network Intrusion Detection System. Trains PyTorch classifiers across
+          distributed clients without centralizing raw traffic, orchestrated with the Flower (flwr)
+          framework using FedAvg aggregation on the CICIDS2017 dataset — DoS, DDoS, and port-scan
+          classification.
+        </div>
+        <div class="proj-tags">
+          <span class="tag">PyTorch</span><span class="tag">Flower / flwr</span><span class="tag">FedAvg</span><span class="tag">CICIDS2017</span>
+        </div>
+      </div>
+
+      <div class="proj" style="--proj-accent:#8ec07c">
+        <div class="proj-head">
+          <span class="proj-name">linux-mem-extractor/</span>
+          <a class="proj-link" href="https://github.com/maplelattte/linux-mem-extractor" target="_blank" rel="noopener">view →</a>
+        </div>
+        <div class="proj-desc">
+          Lightweight incident-response CLI for live process memory forensics. Parses
+          <code>/proc/[pid]/maps</code> to isolate readable segments, then seeks directly into
+          <code>/proc/[pid]/mem</code> to pull strings, env secrets, and paths — no kernel drivers required.
+        </div>
+        <div class="proj-tags">
+          <span class="tag">Python</span><span class="tag">/proc filesystem</span><span class="tag">DFIR</span><span class="tag">Linux</span>
+        </div>
+      </div>
+
+      <div class="proj" style="--proj-accent:#fabd2f">
+        <div class="proj-head">
+          <span class="proj-name">youplay/</span>
+          <a class="proj-link" href="https://github.com/maplelattte/youplay" target="_blank" rel="noopener">view →</a>
+        </div>
+        <div class="proj-desc">
+          CLI tool for downloading full YouTube Music playlists with automatic metadata embedding —
+          title, artist, album, and cover art — via yt-dlp and mutagen, with a Rich-powered live
+          progress display and zero-manual-tagging MP3 output.
+        </div>
+        <div class="proj-tags">
+          <span class="tag">Python</span><span class="tag">yt-dlp</span><span class="tag">mutagen</span><span class="tag">Rich</span><span class="tag">Click</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills" class="reveal">
+    <div class="section-label"><span class="cmd">$</span> bat ~/.config/skills.conf</div>
+    <div class="term">
+      <div class="term-bar">
+        <span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span>
+        <span class="term-title">~/.config/skills.conf</span>
+      </div>
+      <div class="term-body">
+        <div class="conf-line"><span class="conf-key">os_cli</span><span class="conf-eq">=</span><span class="conf-val"><span class="item">Linux (Advanced)</span><span class="item">Bash/Shell</span><span class="item">CLI Tools</span><span class="item">Raspberry Pi</span></span></div>
+        <br>
+        <div class="conf-line"><span class="conf-key">security_net</span><span class="conf-eq">=</span><span class="conf-val"><span class="item">Intranet Security</span><span class="item">Malware Analysis</span><span class="item">Network Monitoring</span><span class="item">DNS</span></span></div>
+        <br>
+        <div class="conf-line"><span class="conf-key">languages</span><span class="conf-eq">=</span><span class="conf-val"><span class="item">Java</span><span class="item">Python</span><span class="item">SQL</span><span class="item">C</span></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <footer id="contact" class="reveal">
+    <div class="contact-cmd">
+      <span class="p1">aviral@vit-ap</span><span class="prompt sym"> ~ $ </span><span class="p2">whoami --contact</span>
+    </div>
+    <div class="contact-grid">
+      <a class="contact-card" href="mailto:avi2k6.up@gmail.com">
+        <div class="contact-label">Email</div>
+        <div class="contact-value"><span class="arrow">→</span>avi2k6.up@gmail.com</div>
+      </a>
+      <a class="contact-card" href="https://github.com/maplelattte" target="_blank" rel="noopener">
+        <div class="contact-label">GitHub</div>
+        <div class="contact-value"><span class="arrow">→</span>maplelattte</div>
+      </a>
+      <a class="contact-card" href="https://linkedin.com/in/aviralupadhyay16" target="_blank" rel="noopener">
+        <div class="contact-label">LinkedIn</div>
+        <div class="contact-value"><span class="arrow">→</span>aviralupadhyay16</div>
+      </a>
+    </div>
+    <div class="footer-rule"></div>
+    <div class="footer-note"><span class="exit">[process exited normally]</span> — thanks for reading to the bottom.</div>
+  </footer>
+
+</main>
+
+<script>
+  // typed tagline
+  (function(){
+    var text = "building things that watch networks, and networks that watch back.";
+    var el = document.getElementById('typedTagline');
+    var i = 0;
+    function type(){
+      if(i <= text.length){
+        el.textContent = text.slice(0, i);
+        i++;
+        setTimeout(type, 34);
+      }
+    }
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+      el.textContent = text;
+    } else {
+      type();
+    }
+  })();
+
+  // scroll reveal
+  (function(){
+    var items = document.querySelectorAll('.reveal');
+    if(!('IntersectionObserver' in window)){
+      items.forEach(function(el){ el.classList.add('in'); });
+      return;
+    }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          entry.target.classList.add('in');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    items.forEach(function(el){ io.observe(el); });
+  })();
+
+  // active nav window highlight
+  (function(){
+    var sections = document.querySelectorAll('main section, footer');
+    var links = document.querySelectorAll('.status-win');
+    if(!('IntersectionObserver' in window)) return;
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          var id = entry.target.getAttribute('id');
+          links.forEach(function(l){
+            l.classList.toggle('active', l.dataset.win === id);
+          });
+        }
+      });
+    }, { rootMargin: '-40% 0px -50% 0px' });
+    sections.forEach(function(s){ io.observe(s); });
+  })();
+</script>
+
+</body>
+</html>
