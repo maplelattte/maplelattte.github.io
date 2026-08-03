@@ -395,6 +395,7 @@
     <a href="#experience" class="status-win" data-win="experience">3:experience</a>
     <a href="#projects" class="status-win" data-win="projects">4:projects</a>
     <a href="#skills" class="status-win" data-win="skills">5:skills</a>
+    <a href="#contact" class="status-win" data-win="contact">6:contact</a>
     <span class="status-spacer"></span>
     <span class="status-clock" id="clock">learning things :D</span>
   </div>
@@ -453,7 +454,7 @@
       <br><br>
       Outside of coursework, I run distro-hop for fun,
       and build small tools that scratch my own itches — an incident-response memory extractor,
-      a privacy-preserving NIDS, a YouTube Music downloader. I like systems I can take apart and rebuild better.
+      a privacy-preserving NIDS, a self-hosted SIEM threat detection lab, and a YouTube Music downloader. I like systems I can take apart and rebuild better.
     </div>
   </section>
 
@@ -486,7 +487,7 @@
   <!-- PROJECTS -->
   <section id="projects" class="reveal">
     <div class="section-label"><span class="cmd">$</span> ls -la ~/projects</div>
-    <div class="ls-line">total <span class="n">3</span> directories · sorted by relevance</div>
+    <div class="ls-line">total <span class="n">4</span> directories · sorted by relevance</div>
     <div class="projects-grid">
 
       <div class="proj" style="--proj-accent:#fe8019">
@@ -521,6 +522,21 @@
       </div>
 
       <div class="proj" style="--proj-accent:#fabd2f">
+        <div class="proj-head">
+          <span class="proj-name">wazuh-threat-detection-lab/</span>
+          <a class="proj-link" href="https://github.com/maplelattte/wazuh-threat-detection-lab" target="_blank" rel="noopener">view →</a>
+        </div>
+        <div class="proj-desc">
+          Self-hosted Enterprise SOC lab built with Wazuh SIEM, OpenSearch Indexer, and Docker Compose.
+          Features real-time endpoint telemetry monitoring, automated NVD vulnerability scanning, and custom Python
+          MITRE ATT&CK threat simulation (SSH brute-force, directory discovery, path enumeration).
+        </div>
+        <div class="proj-tags">
+          <span class="tag">Wazuh SIEM</span><span class="tag">Docker Compose</span><span class="tag">OpenSearch</span><span class="tag">Python</span><span class="tag">MITRE ATT&CK</span>
+        </div>
+      </div>
+
+      <div class="proj" style="--proj-accent:#d3869b">
         <div class="proj-head">
           <span class="proj-name">youplay/</span>
           <a class="proj-link" href="https://github.com/maplelattte/youplay" target="_blank" rel="noopener">view →</a>
