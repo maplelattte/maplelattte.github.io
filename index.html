@@ -89,7 +89,11 @@
     gap:2px;
     height:38px;
     overflow-x:auto;
+    scrollbar-width:none;
   }
+  .statusline-inner::-webkit-scrollbar{ display:none; }
+  section, footer{ scroll-margin-top:38px; }
+  @media (max-width:700px){ .status-clock, .status-spacer{ display:none; } }
   .status-session{
     color:var(--bg);
     background:var(--orange);
@@ -414,7 +418,7 @@
           <div>
             <div class="fetch-name">aviral@vit-ap</div>
             <div class="fetch-rule"></div>
-            <div class="fetch-row"><span class="fetch-key">OS</span><span class="fetch-val">Windows 11 / CachyOS x86_64 (Arch-based)</span></div>
+            <div class="fetch-row"><span class="fetch-key">OS</span><span class="fetch-val">Windows 11 / fedora_linux </span></div>
             <div class="fetch-row"><span class="fetch-key">Host</span><span class="fetch-val">Final-year B.Tech CSE, VIT-AP</span></div>
             <div class="fetch-row"><span class="fetch-key">Focus</span><span class="fetch-val">Cybersecurity · Linux Systems · ML</span></div>
             <div class="fetch-row"><span class="fetch-key">WM</span><span class="fetch-val">Gnome</span></div>
@@ -452,8 +456,8 @@
       and <span class="str">applied machine learning</span> — currently deep into learning C and low level systems.
       <br><br>
       Outside of coursework, I run distro-hop for fun,
-      and build small tools that scratch my own itches — an incident-response memory extractor,
-      a privacy-preserving NIDS, a self-hosted SIEM threat detection lab, and a YouTube Music downloader. I like systems I can take apart and rebuild better.
+      and build small tools that scratch my own itches — an eBPF ransomware containment engine, an incident-response memory extractor,
+      a privacy-preserving NIDS, a phishing email analyzer, a self-hosted SIEM threat detection lab, and a YouTube Music downloader. I like systems I can take apart and rebuild better.
     </div>
   </section>
 
@@ -486,8 +490,24 @@
   <!-- PROJECTS -->
   <section id="projects" class="reveal">
     <div class="section-label"><span class="cmd">$</span> ls -la ~/projects</div>
-    <div class="ls-line">total <span class="n">4</span> directories · sorted by relevance</div>
+    <div class="ls-line">total <span class="n">6</span> directories · sorted by relevance</div>
     <div class="projects-grid">
+
+      <div class="proj" style="--proj-accent:#fb4934">
+        <div class="proj-head">
+          <span class="proj-name">in-kernel-defense/</span>
+          <a class="proj-link" href="https://github.com/maplelattte/capstone" target="_blank" rel="noopener">view →</a>
+        </div>
+        <div class="proj-desc">
+          Low-latency ransomware containment that runs inside the Linux kernel. eBPF tracepoints on
+          <code>write</code>, <code>renameat2</code> and <code>unlinkat</code> score behavior with an in-kernel entropy proxy,
+          then freeze the offending process with <code>SIGSTOP</code> in microseconds, capping damage at 15 files.
+          HMAC-signed alerts stream through a ring buffer to a user-space supervisor for triage and SIEM logging.
+        </div>
+        <div class="proj-tags">
+          <span class="tag">eBPF</span><span class="tag">C</span><span class="tag">Linux Kernel</span><span class="tag">libbpf</span><span class="tag">Ring Buffer</span><span class="tag">HMAC</span>
+        </div>
+      </div>
 
       <div class="proj" style="--proj-accent:#fe8019">
         <div class="proj-head">
@@ -517,6 +537,20 @@
         </div>
         <div class="proj-tags">
           <span class="tag">Python</span><span class="tag">/proc filesystem</span><span class="tag">DFIR</span><span class="tag">Linux</span>
+        </div>
+      </div>
+
+      <div class="proj" style="--proj-accent:#83a598">
+        <div class="proj-head">
+          <span class="proj-name">phishing-mail-analyzer/</span>
+          <a class="proj-link" href="https://github.com/maplelattte/phishing-mail-analyzer" target="_blank" rel="noopener">view →</a>
+        </div>
+        <div class="proj-desc">
+          Command-line tool that parses raw <code>.eml</code> files, extracts the sender headers (From, Return-Path, Subject),
+          and runs live DNS lookups to verify SPF and DMARC records, with color-coded output for spotting missing or weak email authentication.
+        </div>
+        <div class="proj-tags">
+          <span class="tag">Python</span><span class="tag">DNS</span><span class="tag">SPF</span><span class="tag">DMARC</span><span class="tag">Email Forensics</span>
         </div>
       </div>
 
@@ -636,20 +670,26 @@
 
   // active nav window highlight
   (function(){
-    var sections = document.querySelectorAll('main section, footer');
-    var links = document.querySelectorAll('.status-win');
-    if(!('IntersectionObserver' in window)) return;
-    var io = new IntersectionObserver(function(entries){
-      entries.forEach(function(entry){
-        if(entry.isIntersecting){
-          var id = entry.target.getAttribute('id');
-          links.forEach(function(l){
-            l.classList.toggle('active', l.dataset.win === id);
-          });
-        }
+    var secs = ['home','about','experience','projects','skills','contact'].map(function(i){ return document.getElementById(i); });
+    var links = document.querySelectorAll('.status-win'), cur, busy;
+    function update(){
+      busy = 0;
+      var id = 'home', y = innerHeight * 0.35;
+      secs.forEach(function(s){ if(s.getBoundingClientRect().top <= y) id = s.id; });
+      if(innerHeight + scrollY >= document.documentElement.scrollHeight - 4) id = 'skills';
+      if(id === 'contact') id = 'skills';
+      if(id === cur) return;
+      cur = id;
+      links.forEach(function(l){
+        var on = l.dataset.win === id;
+        l.classList.toggle('active', on);
+        if(on){ var n = l.parentNode; n.scrollLeft = l.offsetLeft - n.clientWidth / 2 + l.offsetWidth / 2; }
       });
-    }, { rootMargin: '-40% 0px -50% 0px' });
-    sections.forEach(function(s){ io.observe(s); });
+    }
+    function req(){ if(!busy){ busy = 1; requestAnimationFrame(update); } }
+    addEventListener('scroll', req, {passive:true});
+    addEventListener('resize', req);
+    update();
   })();
 </script>
 
